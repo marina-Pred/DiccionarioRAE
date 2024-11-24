@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import json
 import logging
 import re
-from requests.exceptions import RequestException
 
 RAE_BASE_URL = "https://dle.rae.es/"
 HEADERS = {'User-Agent': 'Mozilla/5.0'}

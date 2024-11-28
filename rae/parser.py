@@ -9,9 +9,6 @@ class RAEParser:
     def obtener_definiciones(soup: BeautifulSoup) -> list:
         """Extrae las definiciones principales del HTML."""
         definiciones = []
-        if not soup.find('article'):
-            logging.warning("No se encontraron definiciones en el HTML proporcionado.")
-            return []
         articulos = soup.find_all('article')
         for articulo in articulos:
             for definicion in articulo.find_all('p', class_=['j', 'j1']):

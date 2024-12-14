@@ -10,9 +10,13 @@ class DiccionarioRAE:
         return self.resultado
     
     def crear_json(self):
-        with open('python/rae_resultados.json', 'w', encoding='utf-8') as f:
-            json.dump(self.resultado, f, ensure_ascii=False, indent=4)
-            logging.info(f"Archivo JSON creado con los resultados de '{self.palabra}'")
+        if self.resultado:
+            with open('python/rae_resultados.json', 'w', encoding='utf-8') as f:
+                json.dump(self.resultado, f, ensure_ascii=False, indent=4)
+                logging.info(f"Archivo JSON creado con los resultados de '{self.palabra}'")
+        
+        logging.warning(f"No se puede crear el archivo JSON porque no hay resultados para '{self.palabra}'.")
+
     # Devuelve catidad de definiciones hay       
     def get_defs_count(self):
         if self.resultado=={}: return 0

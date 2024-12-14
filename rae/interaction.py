@@ -12,7 +12,7 @@ class RAEInteraccion:
         # Bucle para obtener una respuesta válida del usuario
         while True:
             try:
-                seleccion = int(input("Selecciona una opción (número) o pulsa 0 para salir: "))
+                seleccion = int(input())
                 if seleccion == 0:
                     print("No se seleccionó ninguna sugerencia. Saliendo...")
                     return []
@@ -20,7 +20,7 @@ class RAEInteraccion:
                     return sugerencias[seleccion - 1]
                 else:
                     print("Por favor, selecciona un número válido.")
-                    return []
+                    continue
             except ValueError:
                 print("Entrada inválida. Introduce un número.")
-                return
+                continue

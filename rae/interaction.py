@@ -1,3 +1,5 @@
+import logging
+
 class RAEInteraccion:
     """Clase para manejar la interacción con el usuario cuando hay sugerencias."""
     
@@ -14,13 +16,13 @@ class RAEInteraccion:
             try:
                 seleccion = int(input())
                 if seleccion == 0:
-                    print("No se seleccionó ninguna sugerencia. Saliendo...")
-                    return []
+                    logging.info("No seleccionó ninguna sugerencia. Saliendo...")
+                    return None
                 if 1 <= seleccion <= len(sugerencias):
                     return sugerencias[seleccion - 1]
                 else:
-                    print("Por favor, selecciona un número válido.")
+                    logging.warning("Por favor, selecciona un número válido.")
                     continue
             except ValueError:
-                print("Entrada inválida. Introduce un número.")
+                logging.error("Entrada inválida. Introduce un número.")
                 continue

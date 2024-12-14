@@ -1,34 +1,39 @@
-from rae.parser  import *
-from rae.html_handler  import *
-from rae.form  import *
-from rae.interaction import *
+from rae.processor import  *
+import json
 
 class DiccionarioRAE:
 
     def __init__(self, palabra: str):
-        self.palabra = palabra
-        self.resultado = self._procesar_palabra()
+        self.palabra, self.resultado = RAEProcessor.procesar_palabra(palabra)
     
-    def _procesar_palabra(self):
-        handler = RAEHTMLHandler(self.palabra)
-        soup = handler.obtener_html()
-        definiciones = RAEParser.obtener_definiciones(soup)
-        if definiciones: 
-            resultado = {self.palabra: RAEForm.a_dict(definiciones)}
-            return resultado
-        
-        sugerencias = RAEParser.obtener_sugerencias(soup)
-        if sugerencias:
-             logging.warning(f"No se encontraron definiciones para la palabra '{self.palabra}'.")
-             nueva_palabra = RAEInteraccion.manejar_sugerencias(sugerencias)
-             if nueva_palabra: 
-                self.palabra = nueva_palabra
-                return self._procesar_palabra()
-        
-        else:
-            logging.warning(f"La palabra '{self.palabra}' no está en el diccionario.")
-            return {}
-
-#-----------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
+    def get_diccionario(self):
+        return self.resultado
     
+    def crear_json(self):
+        with open('python/rae_resultados.json', 'w', encoding='utf-8') as f:
+            json.dump(self.resultado, f, ensure_ascii=False, indent=4)
+            logging.info(f"Archivo JSON creado con los resultados de '{self.palabra}'")
+    # Devuelve catidad de definiciones hay       
+    def get_defs_count(self):
+        if self.resultado=={}: return 0
+        else: return len(self.resultado[self.palabra]) 
+    # Devueve la definicion por indice
+    def get_defs(self, idx):
+        return self.resultado[self.palabra][idx]['Definicion']
+    # Devuelve todas las definiciones
+    def get_all_defs(self):
+        res = []
+        for i in self.resultado[self.palabra]:
+                res.append(self.resultado[self.palabra][i]['Definicion'])
+        return res
+    # Devuelve todos los tipos asociados con el numero de su definicion
+    def get_all_types(self):
+        res = []
+        for i in self.resultado[self.palabra]:
+            res.append((i,self.resultado[self.palabra][i]['Tipo']))
+        return res
+       
+    def isEmpty(self):
+        if self. resultado == {}:
+            return True
+        return False

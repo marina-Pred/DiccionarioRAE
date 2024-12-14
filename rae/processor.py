@@ -33,6 +33,5 @@ class RAEProcessor:
              if nueva_palabra: 
                 return RAEProcessor.procesar_palabra(nueva_palabra)
                 
-        else:
-            logging.warning(f"La palabra '{palabra}' no está en el diccionario.")
-            return palabra, {}
+        logging.warning(f"La palabra '{palabra}' no está en el diccionario.")
+        return palabra, {}

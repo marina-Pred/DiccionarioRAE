@@ -73,17 +73,77 @@ class RAEParser:
         """Extrae palabras sugeridas desde enlaces con 'title="Ir a la entrada"'."""
         return [enlace.text.strip() for enlace in soup.find_all('a', attrs={'title': "Ir a la entrada"})]
     
-    @staticmethod # SIN TERMINAR
-    def crear_conjugaciones(conjugaciones) -> list:
-        resultado={}
-        # Iteramos sobre las secciones de conjugación
-        for seccion in conjugaciones:
-            # Buscamos el título de la sección (como "Formas no personales", "Indicativo", etc.)
-            for s in seccion.find_all('table', class_ = 'c-table'):
-                filas = s.find_all('tr')
-                for i in range(0, len(filas), 2):
-                    if i+1 < len(filas):
-                        encabezados = filas[i].find_all('th')
-                        valores = filas[i + 1].find_all('td')
+    @staticmethod
+    def crear_conjugaciones(conjugaciones) -> dict:
+        """Procesa las conjugaciones verbales."""
+        resultado = {
+            "Formas no personales": {},
+            "Indicativo": {},
+            "Subjuntivo": {},
+            "Imperativo": {}
+        }
 
+        def formas_no_personales(table, modo):
+            """Procesa una tabla de formas no personales."""
+            for row in table.find_all('tr'):
+                th_cells = [th.get_text(strip=True) for th in row.find_all('th')]
+                td_cells = [td.get_text(strip=True) for td in row.find_all('td')]
+                for th, td in zip(th_cells, td_cells):
+                    resultado[modo][th] = td
+
+        def formas_personales(table, modo):
+            """Procesa una tabla de conjugaciones para modos personales."""
+            rows = table.find_all('tr')
+            if not rows: return
+
+            tiempos = [th.get_text(strip=True) for th in rows[0].find_all('th')[3:]]
+            current_numero = None
+            numero_span = 0
+            current_persona = None
+            persona_span = 0
+
+            for row in rows[1:]:
+                ths = row.find_all('th', class_='c-th-secondary')
+                pronombre_el = row.find('th', class_='c-th-secondary--visible')
+                pronombre = pronombre_el.get_text(strip=True) if pronombre_el else None
+                conjuga = [" ".join(td.stripped_strings) for td in row.find_all('td')]
+
+                for th in ths:
+                    text = th.get_text(strip=True)
+                    if text in ["Singular", "Plural"]:
+                        current_numero = text
+                        numero_span = int(th.get('rowspan', 1)) - 1
+                        break
+                else:
+                    current_numero = numero_span > 0 and current_numero or None
+                    numero_span = numero_span - 1 if numero_span > 0 else 0
+
+                for th in ths:
+                    text = th.get_text(strip=True)
+                    if text in ["Primera", "Segunda", "Tercera"]:
+                        current_persona = text
+                        persona_span = int(th.get('rowspan', 1)) - 1
+                        break
+                else:
+                    current_persona = persona_span > 0 and current_persona or None
+                    persona_span = persona_span - 1 if persona_span > 0 else 0
+                # Añadir al resultado 
+                if current_numero and current_persona and pronombre:
+                    for i, tiempo in enumerate(tiempos):
+                        if i < len(conjuga):
+                            resultado[modo].setdefault(tiempo, {})\
+                                            .setdefault(current_numero, {})\
+                                            .setdefault(current_persona, {})[pronombre] = conjuga[i]
+        # Bucle para procesar cada bloque de conjugaciones
+        for conj_block in conjugaciones:
+            modo_el = conj_block.find('h3', class_='c-collapse__title')
+            if not modo_el:
+                continue
+            modo = modo_el.get_text(strip=True)
+            if modo == "Formas no personales":
+                for table in conj_block.find_all('table'):
+                    formas_no_personales(table, modo)
+            else:
+                for table in conj_block.find_all('table'):
+                    formas_personales(table, modo)
         return resultado

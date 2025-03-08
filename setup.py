@@ -5,7 +5,7 @@ setup(
     version='1.0.0',
     description='Herramienta para interactuar con el diccionario de la RAE.',
     author='Marina P.C.',
-    packages=find_packages(),  
+    packages=find_packages(include=['rae', 'rae.*']),  
     install_requires=[
         'beautifulsoup4', 'requests'
     ],

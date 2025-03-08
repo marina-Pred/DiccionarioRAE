@@ -1,21 +1,28 @@
 from rae.processor import  *
 import json
+import sys
 
 class DiccionarioRAE:
 
     def __init__(self, palabra: str):
+        if not isinstance(palabra, str):
+            logging.error(f"Palabra inválida: {palabra}")
+            sys.exit()
         self.palabra, self.resultado = RAEProcessor.procesar_palabra(palabra)
     
     def get_diccionario(self):
         return self.resultado
     
+    def get_palabra(self):
+        return self.palabra
+    
     def crear_json(self):
         if self.resultado:
-            with open('python/rae_resultados.json', 'w', encoding='utf-8') as f:
+            with open('rae_resultados.json', 'w', encoding='utf-8') as f:
                 json.dump(self.resultado, f, ensure_ascii=False, indent=4)
                 logging.info(f"Archivo JSON creado con los resultados de '{self.palabra}'")
         
-        logging.warning(f"No se puede crear el archivo JSON porque no hay resultados para '{self.palabra}'.")
+        logging.debug(f"No se puede crear el archivo JSON porque no hay resultados para '{self.palabra}'.")
 
     # Devuelve catidad de definiciones hay       
     def get_defs_count(self):

@@ -1,6 +1,7 @@
 from rae.parser  import *
 from rae.html_handler import *
 from rae.interaction import *
+from typing import Tuple
 
 class RAEProcessor:
     @staticmethod
@@ -16,22 +17,26 @@ class RAEProcessor:
         return resultado
 
     @staticmethod
-    def procesar_palabra(palabra):
-        print(palabra)
-        handler = RAEHTMLHandler(palabra)
-        soup = handler.obtener_html()
+    def procesar_palabra(palabra: str, intentos_restantes: int = 3) -> Tuple[str, dict]:
+        while intentos_restantes > 0:
+            handler = RAEHTMLHandler(palabra)
+            soup = handler.obtener_html()
+            if not soup:
+                intentos_restantes -= 1
+                continue
+            definiciones, conjugaciones = RAEParser.obtener_definiciones_conjugaciones(soup)
+
+            if definiciones:
+                return palabra, {palabra: RAEProcessor.a_dict(definiciones, conjugaciones)}
+            sugerencias = RAEParser.obtener_sugerencias(soup)
             
-        definiciones,conjugaciones = RAEParser.obtener_definiciones_conjugaciones(soup)
-        if definiciones: 
-            logging.info(f"Diccionario creado con los resultados de '{palabra}'")
-            return palabra, {palabra: RAEProcessor.a_dict(definiciones, conjugaciones)}
-        
-        sugerencias = RAEParser.obtener_sugerencias(soup)
-        if sugerencias:
-             logging.warning(f""" No se encontraron definiciones para la palabra '{palabra}'. Elige una sugerencia, o pulsa 0 para salir.""")
-             nueva_palabra = RAEInteraccion.manejar_sugerencias(sugerencias)
-             if nueva_palabra: 
-                return RAEProcessor.procesar_palabra(nueva_palabra)
-                
-        logging.warning(f"La palabra '{palabra}' no está en el diccionario.")
+            if not sugerencias:
+                logging.warning(f"La palabra '{palabra}' no está en el diccionario.")
+                return palabra, {}
+            nueva_palabra = RAEInteraccion.manejar_sugerencias(sugerencias)
+            
+            if not nueva_palabra:
+                return palabra, {}
+            palabra = nueva_palabra  
+            intentos_restantes -= 1
         return palabra, {}

@@ -1,14 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='diccionario_rae',
+    name='DiccionarioRAE',
     version='1.0.0',
     description='Herramienta para interactuar con el diccionario de la RAE.',
     author='Marina P.C.',
     packages=find_packages(),  
     install_requires=[
-        'beautifulsoup4',  
-        'lxml' 
+        'beautifulsoup4', 'requests'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

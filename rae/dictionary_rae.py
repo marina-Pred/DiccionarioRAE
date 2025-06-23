@@ -19,7 +19,7 @@ class DiccionarioRAE:
         else:
             logging.error(f"Palabra inválida: {palabra}")
             sys.exit()
-    
+                
     def get_diccionario(self):
         return self.resultado
     
@@ -28,7 +28,7 @@ class DiccionarioRAE:
     
     def get_sugerencias(self):
         return self.sugerencias
-
+    
     def crear_json(self, filename: Optional[str] = None) -> str:
         """Devuelve los resultados en formato JSON y opcionalmente los guarda en un archivo.
         Args:
@@ -47,7 +47,7 @@ class DiccionarioRAE:
                 logging.info(f"Archivo JSON creado: {filename} (Resultados de '{self.palabra}')")
         
         return json_data
-
+    
     # Devuelve catidad de definiciones hay       
     def get_defs_count(self):
         if self.resultado=={}: return 0
@@ -69,6 +69,6 @@ class DiccionarioRAE:
         return res
        
     def isEmpty(self):
-        if self.resultado == {}:
+        if self. resultado == {}:
             return True
         return False

@@ -13,33 +13,33 @@ class RAEParser:
     """Clase para extraer datos del HTML de la RAE."""
 
     @staticmethod
-    def obtener_definiciones_conjugaciones(soup: BeautifulSoup) -> list:
+    def obtener_definiciones_conjugaciones(soup: BeautifulSoup) -> tuple:
         """Extrae las definiciones principales del HTML."""
         return (soup.select(SELECTORS['definiciones']),soup.select(SELECTORS['conjugaciones']))    
-
+    
     @staticmethod
     def limpiar_definicion(definicion) -> str:
-         # Escribe espacios entre palabras
+        # Limpia espacios y caracteres innesarios de la defincion.
         texto_completo = definicion.get_text(separator=" ", strip=True)
-        # Elimina el número inicial
         texto_limpio = re.sub(r'^\d+\.\s*', '', texto_completo).strip()
         texto_limpio = re.sub(r'\s([,.\d])', r'\1', texto_limpio).strip()
+        # Elimina abreviaciones, sinonimos y antonimos
         abbrs = definicion.find_all('abbr')
         sins_ants = definicion.find_all('ul')
         for abbr in abbrs:
             texto_limpio = texto_limpio.replace(abbr.get_text(), '').strip()
-        # Elimina los sinonimos y antonimos de una definicion
         for list in sins_ants: 
             texto_limpio = texto_limpio.replace(list.get_text(), '').strip()
         return texto_limpio
 
     @staticmethod
-    def obtener_ejemplos(definicion):
+    def obtener_ejemplos(definicion) -> list:
         """Extrae ejemplos del texto, si están disponibles."""
         return [ej.get_text(separator=" ", strip=True) for ej in definicion.find_all('span', class_='h')]
- 
+    
     @staticmethod
     def extraer_abbr(definicion):
+        """Extrae de la definicón tipo, usos, sinonimos y antonimos."""
         tipo, usos, sinonimos, antonimos = "", [], [], []
         abbrs = definicion.find_all('abbr')
         for i, abbr in enumerate(abbrs):
@@ -53,28 +53,28 @@ class RAEParser:
                 usos.append(abbr.get('title', '').strip())
         if 'desusado' in usos:
             return None
-        
         return tipo, usos, sinonimos, antonimos
     
     @staticmethod
     def sins_o_ants(definicion) -> list:
         return [re.sub(r'\d+', '', item.get_text(strip=True)) for item in definicion.find_all('span', class_='sin')]
-
+    
     @staticmethod   
     def crear_entrada(definicion)-> dict:
+        """Crear un diccionario por cada definición con su tipo, usos, sinonimos, antonimos y ejemplos"""
         if (elements := RAEParser.extraer_abbr(definicion)) is None:
             return None       
         tipo, usos, sinonimos, antonimos = elements
         ejemplos = RAEParser.obtener_ejemplos(definicion)
-         # Crear un diccionario por cada definición con su tipo, usos, sinonimos, antonimos y ejemplos
-        
-        def_entry = {'Definicion': RAEParser.limpiar_definicion(definicion), 'Tipo': tipo}
+
+        def_entry = {  'Definicion': RAEParser.limpiar_definicion(definicion),'Tipo': tipo}
         if(usos): def_entry['Usos'] = usos
         if(sinonimos): def_entry['Sinonimos'] = sinonimos
         if(antonimos): def_entry['Antonimos'] = antonimos
         if(ejemplos): def_entry['Ejemplos'] = ejemplos
 
         return def_entry
+    
     @staticmethod
     def obtener_sugerencias(soup: BeautifulSoup) -> list[str]:
         """Extrae sugerencias manteniendo solo la forma masculina cuando hay coma."""

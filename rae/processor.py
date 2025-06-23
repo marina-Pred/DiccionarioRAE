@@ -25,7 +25,7 @@ class RAEProcessor:
         if entry_conj:
             resultado['Conjugaciones'] = entry_conj
         return resultado
-
+    
     @staticmethod
     def procesar_palabra(palabra: str = None, metodo: str = None) -> Tuple[str, dict, list]:
         """Procesa una palabra y devuelve: palabra, resultado, sugerencias"""

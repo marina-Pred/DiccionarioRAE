@@ -12,16 +12,35 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 class RAEHTMLHandler:
     """Clase para manejar el HTML de la RAE."""
 
-    def __init__(self, palabra):
+    def __init__(self, palabra: str, metodo: str):
         self.palabra = palabra
+        self.metodo = metodo
 
     def obtener_html(self) -> BeautifulSoup:
         """Obtiene el HTML de la página de la RAE para la palabra dada."""
         try:
-            url=RAE_BASE_URL+urllib.parse.quote(self.palabra)
-            req = Request(url, headers=HEADERS)
-            with urlopen(req, timeout=10) as rp: response = rp.read()
-            return BeautifulSoup(response, 'html.parser')
+            if not self.metodo and not self.palabra:
+                #palabra aleatoria
+                url = RAE_BASE_URL + "?m=random"
+                req = Request(url, headers=HEADERS)
+                with urlopen(req, timeout=10) as rp: response = rp.read()
+                logging.info(f"HTML obtenido correctamente en modo aleatorio.")
+                return BeautifulSoup(response, 'html.parser')
+            elif not self.metodo:
+                #buscar normal
+                url = RAE_BASE_URL+urllib.parse.quote(self.palabra)
+                req = Request(url, headers=HEADERS)
+                with urlopen(req, timeout=10) as rp: response = rp.read()
+                logging.info(f"HTML obtenido correctamente para la palabra '{self.palabra}'.")
+                return BeautifulSoup(response, 'html.parser')
+            else:
+                # buscar la palabra en el metodo indicado
+                url = f"{RAE_BASE_URL}{self.palabra}?m={self.metodo}"
+                req = Request(url, headers=HEADERS)
+                with urlopen(req, timeout=10) as rp: response = rp.read()
+                logging.info(f"HTML obtenido correctamente en modo {self.metodo}. Palabra : {self.palabra}")
+                return BeautifulSoup(response, 'html.parser')
+                
         except HTTPError as e:
             logging.error(f"Error HTTP {e.code} - {e.reason}")
             return None

@@ -3,8 +3,9 @@ from typing import Callable, Optional
 import time
 
 class RAEInteraccion:
-    """Clase para manejar la interacción con el usuario cuando hay sugerencias."""
-    
+    """Clase para manejar la interacción con el usuario cuando hay sugerencias.
+            En desuso.
+        """    
     @staticmethod
     def manejar_sugerencias(sugerencias: list, input_func: Callable[[str], str] = input,
                            max_intentos: int = 3) -> Optional[str]:

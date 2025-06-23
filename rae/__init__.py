@@ -6,5 +6,5 @@ Este paquete permite buscar palabras en el DLE (Diccionario de la Lengua Españo
 y extraer definiciones, ejemplos, sinónimos, y más.
 """
 __all__ = ["DiccionarioRAE"]
-__version__ = "1.0.0"
-__author__ = "Marina"
+__version__ = "1.1.0"
+__author__ = "Marina PC"

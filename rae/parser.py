@@ -76,9 +76,27 @@ class RAEParser:
 
         return def_entry
     @staticmethod
-    def obtener_sugerencias(soup: BeautifulSoup) -> list:
-        """Extrae palabras sugeridas desde enlaces con 'title="Ir a la entrada"'."""
-        return [enlace.text.strip() for enlace in soup.select(SELECTORS['sugerencias'])]
+    def obtener_sugerencias(soup: BeautifulSoup) -> list[str]:
+        """Extrae sugerencias manteniendo solo la forma masculina cuando hay coma."""
+        sugerencias = []
+        
+         # Caso 1: Sugerencias estándar (palabras no encontradas)
+        for enlace in soup.select(SELECTORS['sugerencias']):
+            texto = enlace.text.strip()
+            texto = re.sub(r'\d', '', texto).strip()
+            if ',' in texto:
+                texto = texto.split(',')[0].strip()
+            sugerencias.append(texto)
+       
+        # Caso 2: Redirecciones (términos compuestos)
+        for header in soup.select('h3.b'):
+            if header.a and 'a' in header.a.get('class', []):
+                texto = header.get_text(separator=" ", strip=True)
+                texto = re.sub(r'\d', '', texto).strip()
+                texto = re.sub(r'\s+', ' ', texto)
+                sugerencias.append(texto)
+        
+        return list(set(sugerencias))
     
     @staticmethod
     def crear_conjugaciones(conjugaciones) -> Dict[str, dict]:
